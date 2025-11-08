@@ -7,44 +7,77 @@ from databallpy.visualize import save_tracking_video, plot_soccer_pitch, plot_tr
 from kloppy import skillcorner, sportec
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-import polars as pl
+import pandas as pd
+import time
+
 
 #constants and defs
 match_id = 1886347
 @st.cache_data
-def load_event_data(github_url):
-    return pl.read_csv(github_url)
+def load_event_data(github_url) -> pd.DataFrame():
+    return pd.read_csv(github_url)
 
 def get_game():
-     return get_saved_game(f"{match_id}_game.pkl")
+     g = get_saved_game(f"{match_id}_game.pkl")
+     g.tracking_data.add_velocity(g.get_column_ids() + ["ball"], allow_overwrite=True)
+     return g
 
+# tracking_data_github_url = f"https://media.githubusercontent.com/media/SkillCorner/opendata/master/data/matches/{match_id}/{match_id}_tracking_extrapolated.jsonl"
+# meta_data_github_url = f"https://raw.githubusercontent.com/SkillCorner/opendata/master/data/matches/{match_id}/{match_id}_match.json"
+# tracking_dataset = skillcorner.load(
+#     meta_data=meta_data_github_url,
+#     raw_data=tracking_data_github_url,
+#     # Optional Parameters
+#     coordinates="skillcorner",  # or specify a different coordinate system
+# )
+# game = get_game_from_kloppy(tracking_dataset)
+# game.save_game(f"{match_id}_game.pkl", allow_overwrite=True)
 
+game = get_game()
 
-# game.save_game(f"{match_id}_game.pkl")
 event_data_github_url = f"https://raw.githubusercontent.com/SkillCorner/opendata/refs/heads/master/data/matches/{match_id}/{match_id}_dynamic_events.csv"
 st.title(f'Event data for match {match_id}')
 data = load_event_data(event_data_github_url)
-event_data = st.write(data)
+event_data_table = st.dataframe(
+    data,
+    selection_mode = "multi-row",
+    on_select = "rerun"
+    )
+
+frame_start = data.iloc[event_data_table.selection.rows[0]].frame_start
+frame_end = data.iloc[event_data_table.selection.rows[-1]].frame_end
+
+# # ------------------=================
+# # Get the selected row index
 
 
-
-
-# ------------------=================
-# Get the selected row index
-st.title('Tracking data')
-game = get_game()
 cleaned_tracking_data = game.tracking_data[~game.tracking_data.datetime.isna()].reset_index()
+cleaned_tracking_data = cleaned_tracking_data[(cleaned_tracking_data.frame >= frame_start)&(cleaned_tracking_data.frame <= frame_end)]
 tracking_data_table = st.write(cleaned_tracking_data)
 
-selected_frame = st.slider('Frame', 0, len(cleaned_tracking_data)-1)
+if len(cleaned_tracking_data) > 0:
+    selected_frame_relative_to_event = st.slider('Frame', 0, len(cleaned_tracking_data)-1)
+    selected_frame_relative_to_game = cleaned_tracking_data.iloc[selected_frame_relative_to_event].frame
+    st.title((frame_start, frame_end))
+    pitch_control = get_pitch_control_single_frame(cleaned_tracking_data.iloc[selected_frame_relative_to_event],
+        game.pitch_dimensions,
+        n_x_bins=105, n_y_bins=68,
+    )
+    
+    cmap_red_green = LinearSegmentedColormap.from_list("reds", [(0, 1, 0, 1), (0.5, 0.5, 0, 0), (1, 0, 0, 1)])
 
-pitch_control = get_pitch_control_single_frame(cleaned_tracking_data.iloc[selected_frame],
-    game.pitch_dimensions,
-    n_x_bins=105, n_y_bins=68,
-)
-cmap_red_green = LinearSegmentedColormap.from_list("reds", [(0, 1, 0, 1), (0.5, 0.5, 0, 0), (1, 0, 0, 1)])
+    fig, ax = plot_soccer_pitch(field_dimen=game.pitch_dimensions, pitch_color="white")
+    fig, ax = plot_tracking_data(
+        game
+    , selected_frame_relative_to_game
+    , team_colors=["green", "red"]
+    , ax=ax
+    , fig=fig
+    , heatmap_overlay=pitch_control
+    , overlay_cmap=cmap_red_green
+    , add_velocities = True
+    
+    )
+    st.pyplot(fig)
 
-fig, ax = plot_soccer_pitch(field_dimen=game.pitch_dimensions, pitch_color="white")
-fig, ax = plot_tracking_data(game, selected_frame, team_colors=["green", "red"], ax=ax, fig=fig, heatmap_overlay=pitch_control, overlay_cmap=cmap_red_green)
-st.pyplot(fig)
 
