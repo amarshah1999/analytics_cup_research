@@ -20,8 +20,8 @@ class Annealer:
         self.frame = frame
 
         #annealing params
-        self.tolerance = 0.5
-        self.p_0 = 0.5
+        self.tolerance = 0.2
+        self.p_0 = 0.2
         self.T_0 = -100/(math.log(self.p_0))
         self.T = self.T_0
         self.cooling_rate = 0.9
@@ -64,7 +64,7 @@ class Annealer:
         latest_frame = self.frame
         T = self.T
         
-        for i in range(1,100):
+        for i in range(1,1000):
             perturbed_frame = self.perturbation(latest_frame)
             new_score = self.compute_objective(perturbed_frame)
             if (new_score > best_score) or math.exp((new_score - best_score)/T) > random.random():
@@ -73,8 +73,6 @@ class Annealer:
                 best_score = new_score
                 best_solution = perturbed_frame
                 latest_frame = perturbed_frame
-            if i%10 == 0:
-                print(best_score)
             T = T*self.cooling_rate
 
         return best_solution, best_score
