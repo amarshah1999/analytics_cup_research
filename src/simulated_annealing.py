@@ -3,8 +3,7 @@ from databallpy.features.pitch_control import get_pitch_control_single_frame
 from databallpy.visualize import plot_soccer_pitch, plot_tracking_data
 from matplotlib.colors import LinearSegmentedColormap
 from copy import deepcopy
-
-from annealer import Annealer
+from databallpy.schemas import TrackingData
 
 
 def generate_fig(game, frame_idx):
@@ -30,15 +29,11 @@ def generate_fig(game, frame_idx):
     return fig,ax
 
 
-def run_annealer(annealer: Annealer, game):
+def run_annealer(annealer, game):
     best_solution, best_score = annealer.anneal() 
     new_game = deepcopy(game)
-    new_game.tracking_data = pd.DataFrame(best_solution).transpose().reset_index()
+    new_game.tracking_data = TrackingData(pd.DataFrame(best_solution).transpose().reset_index().astype(game.tracking_data.dtypes))
     return new_game, best_score
 
-def get_figs(new_game_obj, game, selected_frame_idx):
-    original = generate_fig(game, selected_frame_idx)
-    new_positions = generate_fig(new_game_obj, selected_frame_idx)
-    return original, new_positions
 
 

@@ -1,0 +1,14 @@
+# Core data analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Soccer data libraries
+databallpy
+kloppy
+accessible-space
+
+# Visualization
+matplotlib>=3.7.0
+
+
+
