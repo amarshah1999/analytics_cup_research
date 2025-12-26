@@ -21,13 +21,11 @@ _⚠️ Not adhering to these submission rules and the [**Analytics Cup Rules**]
 
 ---
 
-## Research Track Abstract Template (max. 500 words)
+## Abstract
 
 #### Introduction
 
-This research looks to give a mathematical approach to defensive positioning. There are numerous surfaces freely available such as Pitch Control, Dangerous Accessible Space, Expected Threat that can be computed for an entire pitch to associate a “score” with a defensive setup. There are not, to my knowledge, efficient techniques for optimising player positioning to maximise one, or multiple of these objectives. 
-
-For example, trying maximising only Pitch Control will lead to defenders spreading out across the entire pitch. Similarly if we, as a defense, try to minimise “dangerous accessible space”, this would cause defenders to fall back too much and allow the opposition lots of space in the midfield.
+This research looks to give a mathematical, objective approach to defensive positioning. There are numerous surfaces freely available such as Pitch Control, Dangerous Accessible Space, Expected Threat that can be computed for an entire pitch to associate a “score” with a defensive setup. There are not, to my knowledge, efficient techniques for optimising player positioning to maximise one, or multiple of these objectives. 
 
 This research aims to put together a completely generalisable framework for finding the optimal defensive player positions for any arbitrary complex surface, provided it can be computed from a tracking frame. Additionally, this framework allows a coach to input a tactic, such as prioritising pressure on the opposition attackers and risking space in behind, and see where their players should be in order to objectively optimise that risk-reward tradeoff.
 
@@ -35,9 +33,8 @@ This research aims to put together a completely generalisable framework for find
 
 Machine Learning methods are effective at learning patterns from large samples of football (tracking) data, but suffer from two practical limitations.
 
-
-They require large amounts of clean, labelled data
-They’re difficult to interpret from a tactical point of view
+1. They require large amounts of clean, labelled data
+2. They’re difficult to interpret from a tactical point of view
 
 In this competition, given we only have access to ten games worth of tracking data, we instead will use Mathematical Optimisation based methods, as these work with no training data, and are not only interpretable but controllable such that a tactical blueprint can be an input to any model.
 
@@ -47,10 +44,14 @@ Instead, we opt to use Simulated Annealing, an optimisation method that involves
 
 #### Results
 
-We were able to build a system capable of performing simulated annealing and randomly moving players in order to improve complex objective functions. These objective functions 
-
-The key blocker we ran into was defining an objective function that was completely balanced. Whilst minimizing “Dangerous Accessible Space” would be an excellent objective, it is simulation based and therefore costly to compute.
+We were able to build a system capable of performing simulated annealing and randomly moving players in order to improve 2 objectives simultaneously - xT Weighted Pitch Control and Average Pressure. This system is completely generalisable to any metric, or combination of metrics, and therefore has great potential for a number of applications as part of a team's data toolbox.
 
 #### Conclusion
 
-This research shows promise, but further work is needed.
+This research shows promise - we were able to use an optimisation based approach that required zero training data to create a powerful engine that can improve any arbitrary metric, as well as allow trade-offs between metrics, but further work is needed. The main limitation to this approach is that we have not yet found a metric that truly captures everything about defensive position, and minimizing DAS could be a good next step. Additionally, there may be other suitable applications for optimisation based approaches, such as attacking positioning.
+<figure>
+  <img width="2472" height="504" alt="image" src="https://github.com/user-attachments/assets/84cafca6-ee2a-4b4f-bf7e-b5391e8712cc" />
+  <figcaption>Fig. 1 - From Left to Right: The original position of the Red Team defending, the position optimised for xT Weighted Pitch Control (xTWPC), and the position optimised for both xTWPC and Pressure</figcaption>
+</figure>
+
+
