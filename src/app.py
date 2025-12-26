@@ -40,21 +40,19 @@ def figure_toggle():
     distance_perturbation = st.number_input('distance perturbation', 0.0, 3.0, value=0.5)
     num_iterations = st.number_input('num iterations', value=2000)
     max_distance_perturbation = st.number_input('max distance perturbation', value = 3)
-    pressing_parameter = st.number_input('pressing parameter', value=10)
-    passing_lane_block_parameter = st.number_input('passing lane block parameter', value=1.0)
+    pressing_parameter = st.number_input('pressing parameter', value=0.5)
     players_to_press = st.multiselect(
         'Select players to press',
         options=player_columns,
         default=[]
     )
-    if st.button('rerun annealer'):
+    if st.button('run annealer'):
         annealer = Annealer(
             game, 
             selected_frame_idx, 
             distance_perturbation=distance_perturbation, 
             max_distance_perturbation=max_distance_perturbation, 
             num_iterations=num_iterations,
-            passing_lane_block_parameter=passing_lane_block_parameter,
             pressing_parameter = pressing_parameter,
             players_to_press = players_to_press
         )
